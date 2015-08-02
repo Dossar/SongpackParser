@@ -217,6 +217,68 @@ def getChartInfoFromLines(fileLines):
         stepfileLogger.warning("getChartInfoFromLines: Stepchart data is an empty list.")
     return chartArray
 
+def determineDifficultyKey(difficultyName,gameType):
+    """
+    Takes a parsed difficulty name string and a game type string. We're looking to see
+    the string to return to represent the key to add in the charts dictionary.
+
+    Acceptable Difficulty Types:
+    - Beginner
+    - Easy
+    - Medium
+    - Hard
+    - Challenge
+
+    Acceptable Play Types:
+    - dance-single
+    - dance-double
+    """
+
+    # Beginner
+    if difficultyName == "Beginner":
+        if gameType == "dance-single":
+            return "singleBeginner"
+        elif gameType == "dance-double":
+            return "doubleBeginner"
+        else:
+            return "otherBeginner"
+
+    # Easy
+    if difficultyName == "Easy":
+        if gameType == "dance-single":
+            return "singleEasy"
+        elif gameType == "dance-double":
+            return "doubleEasy"
+        else:
+            return "otherEasy"
+
+    # Medium
+    if difficultyName == "Medium":
+        if gameType == "dance-single":
+            return "singleMedium"
+        elif gameType == "dance-double":
+            return "doubleMedium"
+        else:
+            return "otherMedium"
+
+    # Hard
+    if difficultyName == "Hard":
+        if gameType == "dance-single":
+            return "singleHard"
+        elif gameType == "dance-double":
+            return "doubleHard"
+        else:
+            return "otherHard"
+
+    # Challenge
+    if difficultyName == "Challenge":
+        if gameType == "dance-single":
+            return "singleChallenge"
+        elif gameType == "dance-double":
+            return "doubleChallenge"
+        else:
+            return "otherChallenge"
+
 def countStepData(fileLines, chartsStartEnd):
     """
     Takes an array of strings (file lines) and an array specifying
@@ -227,8 +289,8 @@ def countStepData(fileLines, chartsStartEnd):
     charted difficulties for the song.
     """
 
-    # Array of dictionaries, each dictionary being a separate charted difficulty.
-    stepfileData = []
+    # Dictionary where every key is a separate charted difficulty.
+    stepfileData = {}
 
     # Get the step data for each chart.
     for chart in chartsStartEnd:
@@ -300,9 +362,12 @@ def countStepData(fileLines, chartsStartEnd):
             chartData['hold'] = 0
             chartData['roll'] = 0
             chartData['mine'] = 0
+            difficultyName = "Easy"
+            gameType = "dance-single"
             stepfileLogger.warning("countStepData: Something went wrong counting the step data.")
-                
-        stepfileData.append(chartData)
+
+        keyToAdd = determineDifficultyKey(difficultyName,gameType)
+        stepfileData[keyToAdd] = chartData
 
     # Return the array of dictionaries representing charts for the song
     return stepfileData

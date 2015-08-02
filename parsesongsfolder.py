@@ -31,7 +31,8 @@ if __name__ == "__main__":
             jsonsDir = os.path.join(songsDirectory, "jsons")
 
             # Clean out the 'jsons' directory first. Create it after the song packs are listed.
-            shutil.rmtree(jsonsDir)
+            if os.path.exists(jsonsDir):
+                shutil.rmtree(jsonsDir)
             songPacks = os.listdir(songsDirectory)
             os.makedirs(jsonsDir)
             break
