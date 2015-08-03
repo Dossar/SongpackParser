@@ -131,6 +131,7 @@ def getSongInfoFromLines(fileLines):
                 subtitle = re.search("^#SUBTITLE:(.*);$", line)
                 artist = re.search("^#ARTIST:(.*);$", line)
                 bpm = re.search("^#BPMS:(.*);$", line)
+                banner = re.search("^#BANNER:(.*);$", line)
 
                 if title is not None:
                     songInfo['title'] = title.group(1)
@@ -140,6 +141,13 @@ def getSongInfoFromLines(fileLines):
                     songInfo['artist'] = artist.group(1)
                 if bpm is not None:
                     songInfo['bpm'] = parseBpmString(bpm.group(1))
+                if banner is not None:
+                    bannerField = banner.group(1)
+                    if bannerField == "":
+                        songInfo['banner'] = "none.png"
+                    else:
+                        songInfo['banner'] = bannerField.strip().strip('\./\\')
+
     except:
         stepfileLogger.warning("getSongInfoFromLines: {0}: {1}".format(sys.exc_info()[0].__name__,
                                                                        str(sys.exc_info()[1])))
@@ -147,6 +155,7 @@ def getSongInfoFromLines(fileLines):
         songInfo['subtitle'] = ""
         songInfo['artist'] = "Unknown Artist"
         songInfo['bpm'] = "0=0"
+        songInfo['banner'] = "none.png"
 
     # Return the dictionary of song information
     return songInfo
@@ -447,5 +456,6 @@ class Stepfile():
         self.songDict['bpm'] = self.songInfo['bpm']
         self.songDict['charts'] = self.songCharts
         self.songDict['pack'] = self.packName
+        self.songDict['banner'] = self.songInfo['banner']
 
 
