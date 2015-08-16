@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import logging
+import codecs
 
 ###########
 # LOGGERS #
@@ -154,7 +155,7 @@ def getSongInfoFromLines(fileLines):
         songInfo['title'] = "untitled"
         songInfo['subtitle'] = ""
         songInfo['artist'] = "Unknown Artist"
-        songInfo['bpm'] = "0=0"
+        songInfo['bpm'] = [0]
         songInfo['banner'] = "none.png"
 
     # Return the dictionary of song information
@@ -439,15 +440,47 @@ class Stepfile():
         return self.songDict
 
     def readStepfileLines(self):
-        with open(self.stepfilePath) as smFile:
+
+        # Just read as utf-8-sig for now to ignore the BOM mark at the beginning of the files.
+        # If BOM was present at the first line, the #TITLE field would be skipped.
+        stepfileLogger.debug("readStepfileLines: Attempting to read SM File '" + self.stepfilePath + "'.")
+        with open(self.stepfilePath, encoding="utf-8-sig") as smFile:
             for line in smFile:
-                self.stepfileLines.append(line)
+                try:
+                    # if line.startswith('#'):
+                    #    stepfileLogger.debug("readStepfileLines: '" + line.strip() + "'")
+                    self.stepfileLines.append(line.strip())
+                    
+                except:
+                    stepfileLogger.warning("readStepfileLines: {0}: {1}".format(sys.exc_info()[0].__name__,
+                                                                                str(sys.exc_info()[1])))
             smFile.close()
 
+        # Since some files might break the reading process,
+        
+
     def parseStepfile(self):
-        self.readStepfileLines()
-        self.songInfo = getSongInfoFromLines(self.stepfileLines)
-        self.songCharts = getChartInfoFromLines(self.stepfileLines)
+
+        stepfileLogger.debug("parseStepfile: Attempting to read SM file in folder '" + self.songFolder + "'.")
+        try:
+            self.readStepfileLines()
+        except:
+            stepfileLogger.warning("parseStepfile: readStepfileLines: {0}: {1}".format(sys.exc_info()[0].__name__,
+                                                                                       str(sys.exc_info()[1])))
+
+        stepfileLogger.debug("parseStepfile: Attempting to get song info for folder '" + self.songFolder + "'.")
+        try:
+            self.songInfo = getSongInfoFromLines(self.stepfileLines)
+        except:
+            stepfileLogger.warning("parseStepfile: getSongInfoFromLines: {0}: {1}".format(sys.exc_info()[0].__name__,
+                                                                                          str(sys.exc_info()[1])))
+
+        stepfileLogger.debug("parseStepfile: Attempting to get chart info for folder '" + self.songFolder + "'.")
+        try:
+            self.songCharts = getChartInfoFromLines(self.stepfileLines)
+        except:
+            stepfileLogger.warning("parseStepfile: getChartInfoFromLines: {0}: {1}".format(sys.exc_info()[0].__name__,
+                                                                                           str(sys.exc_info()[1])))
 
     def createSongDict(self):
         self.songDict['title'] = self.songInfo['title']

@@ -130,17 +130,19 @@ class SongPack():
         if self.stepfileList is not []:
             songpackLogger.info("parseStepfiles: Parsing batch simfiles")
             for stepfile in self.stepfileList:
+
+                # See if we can properly parse through the SM file.
+                songFolder = stepfile.getSongFolderName()
+                songpackLogger.debug("parseStepfiles: parseStepfile: Attempting to parse stepfile for Song Folder '%s'", songFolder)
                 try:
-                    songFolder = stepfile.getSongFolderName()
-                    songpackLogger.debug("parseStepfiles: Song Folder is '%s'", songFolder)
                     stepfile.parseStepfile()
-                    stepfile.createSongDict()
-                    songTitle = stepfile.getSongTitle()
-                    self.packSongTitles.append(songTitle)
-                    self.songs.append(stepfile.getSongDict())
                 except:
-                    songpackLogger.warning("parseStepfiles: {0}: {1}".format(sys.exc_info()[0].__name__,
-                                                                             str(sys.exc_info()[1])))
+                    songpackLogger.warning("parseStepfiles: parseStepfile: {0}: {1}".format(sys.exc_info()[0].__name__,
+                                                                                            str(sys.exc_info()[1])))
+                stepfile.createSongDict()
+                songTitle = stepfile.getSongTitle()
+                self.packSongTitles.append(songTitle)
+                self.songs.append(stepfile.getSongDict())
 
 
 
